@@ -1,0 +1,35 @@
+name: Publish
+
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 0"
+    
+permissions:
+  contents: write
+  
+jobs:
+  build:
+    strategy:
+      matrix:
+        platfom: [win32, x64]
+        configuration: [Release, Release(DLL)]
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Install MSBuild
+        uses: microsoft/setup-msbuild@v1.0.2
+        
+      - name: Build solution
+        shell: cmd
+        run: |
+          MSBuild.exe BlackBone.sln /p:CI=true /p:Platform="${{ matrix.platfom }}" /p:Configuration="${{ matrix.configuration }}"
+
+      - name: Upload latest artifact
+        uses: actions/upload-artifact@v3.1.0
+        with:
+          name: BlackBone-release
+          path: build/${{ matrix.platfom }}/${{ matrix.configuration }}/*
+          if-no-files-found: error
