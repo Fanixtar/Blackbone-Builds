@@ -30,6 +30,11 @@ jobs:
         shell: cmd
         run: |
           MSBuild.exe ./Blackbone/BlackBone.sln /p:CI=true /p:Platform="${{ matrix.platfom }}" /p:Configuration="${{ matrix.configuration }}"
+        
+      - name: Removing unused files
+        shell: bash
+        run: |
+          rm -rf ./Blackbone/build/${{ matrix.platfom }}/${{ matrix.configuration }}/*.pdb
 
       - name: Upload latest artifact
         uses: actions/upload-artifact@v3.1.0
